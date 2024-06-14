@@ -1,3 +1,6 @@
+#Use:
+To install DLC, downlaod files, run .py file and follow any instructions given.
+
 # Credit:
 All copyrighted materials were used in accordance to UK law under fair use. Only 5 seconds of each song is included, app is not monetized, majority of project is original and is used for educational purposes (Year 10 Computer Science Final Project).
 
