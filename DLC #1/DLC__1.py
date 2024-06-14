@@ -1,6 +1,8 @@
-import os
+import shutil
 from tkinter import *
 from tkinter import filedialog
+import sqlite3
+import os
 
 def select():
     global path
@@ -11,8 +13,47 @@ def contin():
     
     if path != "":
         frame_1.pack_forget()
-        loading = Label(root, text = "Loading...", font = ("Monoton", 15))
+        frame_2  = Frame(root)
+        loading = Label(frame_2, text = "Loading...", font = ("Monoton", 15))
         loading.pack(anchor = "center")
+        frame_2.pack(fill = "both")
+        main_db_path = path + "/Songs.db"
+        main_songs_path = path + "/Songs/"
+        
+        main_songs = sqlite3.connect(main_db_path)
+        main_cursor = main_songs.cursor()
+        
+        main_cursor.execute("SELECT COUNT(*) FROM Songs")
+        next_song_no = main_cursor.fetchone()[0] + 1
+        
+        sub_songs = sqlite3.connect("Songs.db")
+        sub_cursor = sub_songs.cursor()
+        
+        sub_cursor.execute("SELECT COUNT(*) FROM Songs")
+        total_new_songs = sub_cursor.fetchone()[0]
+        
+        for i in range(0,total_new_songs):
+            row = i + 1
+            sub_cursor.execute("SELECT Title FROM Songs WHERE rowid = ?", (row,))
+            song_title = sub_cursor.fetchone()[0]
+            sub_cursor.execute("SELECT Artist FROM Songs WHERE rowid = ?", (row,))
+            song_artist = sub_cursor.fetchone()[0]
+
+            folder_path = main_songs_path + str(next_song_no)
+            sample_path = "Songs/" + str(row) + "/Aud.mp3"
+            cvr_path = "Songs/" + str(row) + "/Cvr.png"
+            
+            os.mkdir(folder_path)
+            shutil.copy(sample_path, folder_path)
+            shutil.copy(cvr_path, folder_path)
+            
+            main_cursor.execute("INSERT INTO Songs VALUES (?, ?)", (song_title, song_artist))
+            main_songs.commit()
+        loading = Label(frame_2, text = "Loading Complete. You Can Now Close The Program.", font = ("Monoton", 15))
+        loading.pack(anchor = "center")
+        frame_2.pack(fill = "both")
+        
+
 
 path = ""
 
